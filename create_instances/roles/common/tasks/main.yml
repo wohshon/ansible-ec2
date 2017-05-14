@@ -1,0 +1,124 @@
+---
+# This role spins up 3 nodes on aws for OCP
+
+- name: Create Master Instance
+  local_action:
+    module: ec2
+    key_name: "{{ keyname }}"
+    group_id: "{{ master_sg_id }}"
+    instance_type: "{{ instance_type }}"
+    image: "{{ aim_id }}"
+    wait: yes
+    wait_timeout: 500
+    volumes:
+      - device_name: /dev/sda1
+        volume_type: gp2
+        volume_size: 25
+    vpc_subnet_id: "{{ dmz_subnet_id }}"
+    assign_public_ip: yes
+    instance_tags: 
+      ocp-node: master
+    count_tag:
+      ocp-node: master
+    exact_count: 1
+    region: 'ap-southeast-1'
+  tags: create-master
+
+- name: Create Node Instance
+  local_action:
+    module: ec2
+    key_name: "{{ keyname }}"
+    group_id: "{{ node_sg_id }}"
+    instance_type: "{{ instance_type }}"
+    image: "{{ aim_id }}"
+    wait: yes
+    wait_timeout: 500
+    volumes:
+      - device_name: /dev/sda1
+        volume_type: gp2
+        volume_size: 25
+    vpc_subnet_id: "{{ dmz_subnet_id }}"
+    assign_public_ip: yes
+    instance_tags:
+      ocp-node: node
+    count_tag:
+      ocp-node: node
+    exact_count: 2
+    region: 'ap-southeast-1'
+  register: nodes
+  tags: create-nodes
+
+- name: get master info
+  local_action: 
+    module: ec2_remote_facts
+    filters:
+      tag:"ocp-node"="master"
+    region: 'ap-southeast-1'
+  register: master 
+  tags: get-master-info
+
+- name: label master instance
+  local_action:
+    module:  ec2_tag
+    region: ap-southeast-1
+    resource:  "{{ master.instances[0].id }}"
+#    resource: 'i-0628372933d6862b8'
+#    state: list
+#  register: my_tags
+    state: present
+    tags:
+      Name: ocp-master-1
+      ocp-node: master
+  tags: label-master
+
+- name: get node info
+  local_action:
+    module: ec2_remote_facts
+    filters:
+      tag:"ocp-node"="node"
+    region: 'ap-southeast-1'
+  register: nodes
+  tags: get-nodes-info
+
+- name: label node instance
+  local_action:
+    module:  ec2_tag
+    region: ap-southeast-1
+    resource:  "{{ nodes.instances[item].id }}"
+    state: present
+    tags:
+      Name: ocp-node-{{item}}
+      ocp-node: node
+  with_items:
+    - 0
+    - 1
+  tags: label-node
+
+# add host to group OSEV3
+
+#- name: add to group OSEV3
+#  local_action:
+#    module: add_host
+
+# Testing from here
+- name: Get EC2 facts
+  local_action: 
+    module: ec2_remote_facts
+    filters:
+#      instance-state-name: 
+#        - stopped 
+#        - running
+#      tag:"Name"="oseawslab_master_node"
+      tag:"ocp-node"="node"
+    region: 'ap-southeast-1'
+  register: results
+    
+- name: Show Results
+  local_action:
+    module: debug
+#    var: hostvars[inventory_hostname]
+    var: results.instances[{{ item }}].id
+#    msg: 'hello
+  with_items:
+    - 0
+    - 1

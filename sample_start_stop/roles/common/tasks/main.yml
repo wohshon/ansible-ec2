@@ -1,0 +1,27 @@
+---
+# This playbook test some ec2 modules .
+
+- name: Stop Instance
+  local_action: 
+    module: ec2
+    instance_ids: "{{ ec2_id }}"
+#    instance_tags:
+#      Name: oseawslab_util00
+#      Name: oseawslab_master_node
+    region: 'ap-southeast-1'
+    state: stopped   
+  tags: stop-ec2
+
+- name: Start Instance
+  local_action:
+    module: ec2 
+#    instance_ids: 'i-84816d23'
+    instance_tags:
+#      Name: oseawslab_util00
+      Name: oseawslab_master_node
+    region: 'ap-southeast-1'
+    wait: true
+    state: running   
+  tags: start-ec2
+  
+

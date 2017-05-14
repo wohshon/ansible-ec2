@@ -1,0 +1,16 @@
+# ansible_ssh_common_args: '-o ProxyCommand="ssh 54.255.235.135 -W %h:%p"'
+# add in ansible-playbook with -e "jump_server_ip=xx.xx.xx.xxx"
+ansible_ssh_common_args: '-o ProxyCommand="ssh {{ jump_server_ip }} -W %h:%p"'
+cluster_id: oseawslab
+aim_id: ami-2c95344f
+keyname: oseawslabkey
+master_sg_id: sg-f5dff091
+node_sg_id: sg-a2dff0c6
+dmz_subnet_id: subnet-2d249049
+device_name: /dev/sda
+volume_type: gp2
+volume_size: 25
+instance_type: t2.medium
+
+
+

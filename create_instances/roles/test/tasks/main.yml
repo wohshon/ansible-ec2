@@ -1,0 +1,35 @@
+---
+# This role spins up 3 nodes on aws for OCP
+# Testing from here
+- name: Get EC2 facts
+  local_action: 
+    module: ec2_remote_facts
+    filters:
+      instance-state-name: 
+        - stopped 
+        - running
+#      tag:"Name"="oseawslab_master_node"
+#      tag:"ocp-node"="node"
+    region: 'ap-southeast-1'
+  register: results
+
+- name: Add new instance to host group
+  add_host:
+    hostname: 123.123.123.123 
+    groupname: masters
+  add_host:
+    hostname: masters
+    groupname: OSEV3
+
+    
+- name: Show Results
+  local_action:
+    module: debug
+#    var: hostvars[inventory_hostname]
+    var: hostvars
+#    var: results.instances[{{ item }}].id
+#    msg: 'hello
+#  with_items:
+#    - 0
+#    - 1
+

@@ -1,0 +1,9 @@
+cluster_id: oseawslab
+aim_id: ami-2c95344f
+keyname: oseawslabkey
+master_sg_id: sg-f5dff091
+dmz_subnet_id: subnet-2d249049
+device_name: /dev/sda
+volume_type: gp2
+volume_size: 25
+instance_type: t2.medium

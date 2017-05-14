@@ -1,0 +1,9 @@
+---
+# This playbook test the ec2 modules.
+
+- name: run common roles
+  hosts: all
+  remote_user: ec2-user
+  roles:
+    - common
+
